@@ -3,19 +3,28 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>XO 井字棋——雙人對戰</title>
+    <title>海灘度假風井字棋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 強制套用圓潤字體，並確保 Emoji 顯示正常 */
+        body { 
+            font-family: 'Varela Round', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif; 
+        }
+    </style>
 </head>
 <body>
     <main class="container">
-        <h1>XO 井字棋</h1>
+        <h1>Tic Tac Toe</h1>
         
         <div class="status">
-            <span>目前輪到: <strong id="turn">X</strong></span>
-            <span id="state"></span>
+            <span>輪到: <strong id="turn" style="font-size:1.3em; margin-left:5px;">⭐</strong></span>
+            <span id="state" style="margin-left:15px; color:#ef5350;"></span>
         </div>
 
-        <section id="board" class="board" aria-label="井字棋棋盤">
+        <section id="board" class="board">
+            <div id="win-line" class="win-line"></div>
+
             <button class="cell" data-idx="0"></button>
             <button class="cell" data-idx="1"></button>
             <button class="cell" data-idx="2"></button>
@@ -28,15 +37,23 @@
         </section>
 
         <div class="scoreboard">
-            <h2>計分板</h2>
-            <p>X 勝場: <span id="score-x">0</span></p>
-            <p>O 勝場: <span id="score-o">0</span></p>
-            <p>平手次數: <span id="score-draw">0</span></p>
+            <div>
+                <p>⭐ 海星</p>
+                <span id="score-x">0</span>
+            </div>
+            <div>
+                <p>🐚 貝殼</p>
+                <span id="score-o">0</span>
+            </div>
+            <div>
+                <p>平手</p>
+                <span id="score-draw">0</span>
+            </div>
         </div>
 
         <div class="controls">
-            <button id="reset">重開一局</button>
-            <button id="reset-all">重置計分</button>
+            <button id="reset">下一局</button>
+            <button id="reset-all" class="btn-reset-all">重置分數</button>
         </div>
     </main>
     <script src="script.js" defer></script>
