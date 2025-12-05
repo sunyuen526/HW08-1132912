@@ -1,10 +1,20 @@
-/* 設定變數與版面底圖 */
 :root {
-    --bg: #f994f4;
-    --text: #be7500;
-    --x: #ff6b6b;
-    --o: #4dd0e1; /* PDF原文是4dd0el，已修正為e1 */
-    --win: #ffe066;
+    /* 海邊配色：藍天 -> 大海 -> 沙灘 */
+    --bg-gradient: linear-gradient(180deg, #81d4fa 0%, #4fc3f7 40%, #fff176 100%);
+    --text: #37474f;
+    
+    /* 玩具風格 3D 配色 */
+    --x-color: #ff7043; /* 海星橘 */
+    --x-shadow: #d84315;
+    
+    --o-color: #26c6da; /* 浪花藍 */
+    --o-shadow: #00838f;
+    
+    --board-bg: rgba(255, 255, 255, 0.45);
+    --cell-bg: rgba(255, 255, 255, 0.6);
+    
+    --btn-bg: #4dd0e1;
+    --btn-text: #ffffff;
 }
 
 * { box-sizing: border-box; }
@@ -12,75 +22,168 @@ html, body { height: 100%; }
 
 body {
     margin: 0;
-    font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
+    background: var(--bg-gradient);
     color: var(--text);
     display: grid;
     place-items: center;
-    padding: 24px;
+    overflow: hidden;
 }
 
-/* 設計 main 與標題 */
-.container { width: min(720px, 96%); text-align: center; }
-h1 { margin: 0 0 16px 0; font-size: 24px; }
-.status { margin-bottom: 12px; }
+.container { 
+    width: min(720px, 95%); 
+    text-align: center;
+}
 
-/* 設計棋盤 */
+h1 { 
+    margin: 0 0 15px 0; 
+    font-size: 2.8rem; 
+    color: #fff;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+}
+
+.status { 
+    margin-bottom: 20px; 
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.8);
+    display: inline-block;
+    padding: 10px 25px;
+    border-radius: 50px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    color: #006064;
+    font-weight: bold;
+}
+
+/* 棋盤設定 */
 .board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    padding: 12px;
-    border-radius: 14px;
-    width: min(560px, 92%);
+    gap: 15px;
+    background: var(--board-bg);
+    padding: 15px;
+    border-radius: 25px;
+    width: min(500px, 90%);
     aspect-ratio: 1/1;
-    margin: 0 auto; /* 確保棋盤置中 */
+    margin: 0 auto;
+    box-shadow: 0 10px 25px rgba(0, 100, 150, 0.15); 
+    border: 4px solid rgba(255,255,255,0.5);
+    backdrop-filter: blur(4px);
+    position: relative; /* 為了定位勝利連線 */
 }
 
-/* 設計棋盤格 */
+/* 棋盤格 */
 .cell {
-    border-radius: 10px;
-    background: linear-gradient(180deg, #121430, #0e1030);
-    border: 1px solid rgba(255,255,255,0.03);
-    font-size: 48px;
-    font-weight: 800;
+    border-radius: 20px;
+    background: var(--cell-bg);
+    border: none;
+    font-size: 4.5rem; 
+    font-weight: 900;
     display: grid;
     place-items: center;
     cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.05); 
     color: var(--text); /* 預設顏色 */
 }
 
-.cell.x { color: var(--x); }
-.cell.o { color: var(--o); }
-.cell.win { background: var(--win); color: #000; }
-
-/* 計分板樣式 */
-.scoreboard { 
-    margin-top: 16px; 
-    text-align: left; 
-    display: inline-block; 
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 8px;
+.cell:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-3px);
 }
-.scoreboard h2 { margin-bottom: 8px; font-size: 18px; margin-top: 0; }
-.scoreboard p { margin: 4px 0; }
 
-/* 控制區與按鈕 */
-.controls { margin-top: 12px; }
+/* 符號樣式 (Emoji 也會吃到這個顏色) */
+.cell.x { 
+    color: var(--x-color);
+    text-shadow: 2px 2px 0px var(--x-shadow), 4px 4px 0px rgba(0,0,0,0.1);
+}
 
-button {
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: 0;
-    background: #21264a;
-    color: var(--text);
+.cell.o { 
+    color: var(--o-color);
+    text-shadow: 2px 2px 0px var(--o-shadow), 4px 4px 0px rgba(0,0,0,0.1);
+}
+
+.cell.win { 
+    background: #fff9c4 !important;
+    animation: bounce 0.6s infinite alternate;
+}
+
+/* 計分板 */
+.scoreboard {
+    margin-top: 25px;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.6);
+    padding: 15px;
+    border-radius: 20px;
+    width: 100%;
+    color: #455a64;
+}
+
+.scoreboard span { 
+    display: block; 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    margin-top: 5px;
+}
+#score-x { color: var(--x-color); }
+#score-o { color: var(--o-color); }
+
+/* 按鈕 */
+.controls { margin-top: 20px; }
+
+button:not(.cell) {
+    padding: 12px 28px;
+    border-radius: 50px;
+    border: none;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    box-shadow: 0 4px 0 #0097a7, 0 8px 10px rgba(0,0,0,0.1);
     cursor: pointer;
-    font-size: 16px;
-    margin: 0 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0 8px;
+    transition: all 0.1s;
 }
 
-button:disabled { opacity: .5; cursor: not-allowed; }
+button:not(.cell):active {
+    box-shadow: 0 0 0 #0097a7, inset 0 2px 5px rgba(0,0,0,0.2);
+    transform: translateY(4px);
+}
+
+.btn-reset-all {
+    background: #ffca28 !important;
+    box-shadow: 0 4px 0 #ff8f00, 0 8px 10px rgba(0,0,0,0.1) !important;
+}
+.btn-reset-all:active {
+    box-shadow: 0 0 0 #ff8f00, inset 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
+/* --- ★ 勝利連線樣式 ★ --- */
+.win-line {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    pointer-events: none;
+    display: none; /* 預設隱藏 */
+    z-index: 10;
+}
+.win-line.show { display: block; }
+
+/* 橫線 */
+.line-0 { top: 16.6%; left: 2%; width: 96%; height: 8px; transform: translateY(-50%); }
+.line-1 { top: 50%;    left: 2%; width: 96%; height: 8px; transform: translateY(-50%); }
+.line-2 { top: 83.3%; left: 2%; width: 96%; height: 8px; transform: translateY(-50%); }
+/* 直線 */
+.line-3 { left: 16.6%; top: 2%; height: 96%; width: 8px; transform: translateX(-50%); }
+.line-4 { left: 50%;    top: 2%; height: 96%; width: 8px; transform: translateX(-50%); }
+.line-5 { left: 83.3%; top: 2%; height: 96%; width: 8px; transform: translateX(-50%); }
+/* 斜線 */
+.line-6 { top: 50%; left: 50%; width: 130%; height: 8px; transform: translate(-50%, -50%) rotate(45deg); }
+.line-7 { top: 50%; left: 50%; width: 130%; height: 8px; transform: translate(-50%, -50%) rotate(-45deg); }
