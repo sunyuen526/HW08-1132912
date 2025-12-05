@@ -2,32 +2,37 @@
 const boardEl = document.getElementById('board');
 const cells = Array.from(document.querySelectorAll('.cell'));
 const btnReset = document.getElementById('reset');
-const btnResetAll = document.getElementById('reset-all'); // 改良功能新增
+const btnResetAll = document.getElementById('reset-all');
 const turnEl = document.getElementById('turn');
 const stateEl = document.getElementById('state');
+// 勝利連線元素
+const lineEl = document.getElementById('win-line');
 
-// 計分板元素
 const scoreXEl = document.getElementById('score-x');
 const scoreOEl = document.getElementById('score-o');
 const scoreDrawEl = document.getElementById('score-draw');
 
 // 遊戲狀態變數
 let board, current, active;
-// 計分用變數
 let scoreX = 0;
 let scoreO = 0;
 let scoreDraw = 0;
 
-// 勝利條件 (8種線條組合)
+// 符號對照表
+const SYMBOLS = {
+    'X': '⭐', // 海星
+    'O': '🐚'  // 貝殼
+};
+
+// 勝利條件 (注意順序與 CSS class 對應)
 const WIN_LINES = [
-    [0,1,2], [3,4,5], [6,7,8], // rows
-    [0,3,6], [1,4,7], [2,5,8], // cols
-    [0,4,8], [2,4,6]           // diags
+    [0,1,2], [3,4,5], [6,7,8], // 橫排 0-2
+    [0,3,6], [1,4,7], [2,5,8], // 直排 3-5
+    [0,4,8], [2,4,6]           // 斜線 6-7
 ];
 
 // --- 函式定義 ---
 
-// 起始函式
 function init() {
     board = Array(9).fill('');
     current = 'X';
@@ -35,22 +40,27 @@ function init() {
     
     cells.forEach(c => {
         c.textContent = '';
-        c.className = 'cell'; // 重置 class，移除 x, o, win
+        c.className = 'cell';
         c.disabled = false;
+        c.style.transform = '';
     });
-    
-    turnEl.textContent = current;
+
+    // 重置並隱藏連線
+    lineEl.className = 'win-line';
+
+    turnEl.textContent = SYMBOLS[current];
     stateEl.textContent = '';
 }
 
-// 下手邏輯
 function place(idx) {
     if (!active || board[idx]) return;
     
     board[idx] = current;
     const cell = cells[idx];
-    cell.textContent = current;
-    cell.classList.add(current.toLowerCase()); // 加入 .x 或 .o class
+    
+    // 顯示 Emoji
+    cell.textContent = SYMBOLS[current];
+    cell.classList.add(current.toLowerCase());
     
     const result = evaluate();
     
@@ -61,48 +71,44 @@ function place(idx) {
     }
 }
 
-// 換手函式
 function switchTurn() {
     current = current === 'X' ? 'O' : 'X';
-    turnEl.textContent = current;
+    turnEl.textContent = SYMBOLS[current];
 }
 
-// 評估勝負
 function evaluate() {
-    for (const line of WIN_LINES) {
+    for (let i = 0; i < WIN_LINES.length; i++) {
+        const line = WIN_LINES[i];
         const [a, b, c] = line;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            return { finished: true, winner: board[a], line };
+            // 回傳 index 以便畫線
+            return { finished: true, winner: board[a], line: line, index: i };
         }
     }
-    // 檢查平手 (所有格子都有值)
     if (board.every(v => v)) {
         return { finished: true, winner: null };
     }
     return { finished: false };
 }
 
-// 遊戲結束處理 (包含計分板更新)
-function endGame({ winner, line }) {
+function endGame({ winner, line, index }) {
     active = false;
     if (winner) {
-        stateEl.textContent = `${winner} 勝利!`;
-        // 畫出勝利線條樣式
+        stateEl.textContent = `${SYMBOLS[winner]} 勝利!`;
         line.forEach(i => cells[i].classList.add('win'));
         
-        // 更新分數
+        // 畫出勝利線條
+        lineEl.classList.add('show', `line-${index}`);
+
         if (winner === 'X') scoreX++; else scoreO++;
     } else {
         stateEl.textContent = '平手';
         scoreDraw++;
     }
     updateScoreboard();
-    
-    // 鎖定所有格子
     cells.forEach(c => c.disabled = true);
 }
 
-// 更新計分板數字
 function updateScoreboard() {
     scoreXEl.textContent = scoreX;
     scoreOEl.textContent = scoreO;
@@ -110,8 +116,6 @@ function updateScoreboard() {
 }
 
 // --- 事件綁定 ---
-
-// 綁定棋盤格點擊
 cells.forEach(cell => {
     cell.addEventListener('click', () => {
         const idx = +cell.getAttribute('data-idx');
@@ -119,10 +123,8 @@ cells.forEach(cell => {
     });
 });
 
-// 重開一局 (保留分數)
 btnReset.addEventListener('click', init);
 
-// 重置計分 (連同遊戲)
 btnResetAll.addEventListener('click', () => {
     scoreX = scoreO = scoreDraw = 0;
     updateScoreboard();
